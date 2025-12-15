@@ -1,0 +1,262 @@
+5
+
+import java.math.BigInteger;
+import java.util.*;
+
+class RSA {
+    public static void main(String[] a){
+        Random r=new Random();
+        BigInteger p=BigInteger.probablePrime(512,r),
+                   q=BigInteger.probablePrime(512,r),
+                   n=p.multiply(q),
+                   phi=p.subtract(BigInteger.ONE)
+                        .multiply(q.subtract(BigInteger.ONE)),
+                   e=BigInteger.valueOf(65537),
+                   d=e.modInverse(phi);
+
+        Scanner sc=new Scanner(System.in);
+        BigInteger msg=new BigInteger(sc.nextLine().getBytes()),
+                   enc=msg.modPow(e,n),
+                   dec=enc.modPow(d,n);
+
+        System.out.println("Encrypted: "+enc);
+        System.out.println("Decrypted: "+new String(dec.toByteArray()));
+    }
+}
+
+
+6
+
+import java.util.*;
+
+class Main {
+    public static void main(String[] a){
+        int cap=4, rate=3, rem=0;
+        Scanner sc=new Scanner(System.in);
+
+        System.out.print("Enter number of packets: ");
+        int n=sc.nextInt();
+
+        int[] pkt=new int[n];
+        System.out.println("Enter the packets:");
+        for(int i=0;i<n;i++) pkt[i]=sc.nextInt(); // read ONLY, no printing
+
+        System.out.println("Clock\tPacket\tSent\tRemaining");
+
+        for(int i=0;i<n;i++){
+            int sent;
+            if(pkt[i]<=cap-rem) rem+=pkt[i];
+            else System.out.println((i+1)+"\t"+pkt[i]+"\tDropped\t"+rem);
+
+            sent=Math.min(rem,rate);
+            rem-=sent;
+            System.out.println((i+1)+"\t"+pkt[i]+"\t"+sent+"\t"+rem);
+        }
+    }
+}
+
+
+
+
+7
+
+RPCServer
+
+import java.io.*; 
+import java.net.*;
+
+public class RPCServer {
+    public static void main(String[] args) throws Exception {
+        ServerSocket ss = new ServerSocket(5050);
+        Socket s = ss.accept();
+
+        DataInputStream in = new DataInputStream(s.getInputStream());
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
+
+        int a = in.readInt(), b = in.readInt();
+        String op = in.readUTF();
+        int res = 0;
+
+        if(op.equals("add")) res = a+b;
+        else if(op.equals("sub")) res = a-b;
+        else if(op.equals("mul")) res = a*b;
+        else if(op.equals("div")) res = (b!=0)?a/b:-1;
+
+        out.writeInt(res);
+        s.close(); ss.close();
+    }
+}
+
+
+RPCClient
+
+import java.io.*; 
+import java.net.*; 
+import java.util.*;
+
+public class RPCClient {
+    public static void main(String[] args) throws Exception {
+        Socket s = new Socket("localhost",5050);
+        Scanner sc = new Scanner(System.in);
+
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
+        DataInputStream in = new DataInputStream(s.getInputStream());
+
+        System.out.print("Enter a b operation: ");
+        out.writeInt(sc.nextInt());
+        out.writeInt(sc.nextInt());
+        out.writeUTF(sc.next());
+
+        System.out.println("Result: " + in.readInt());
+        s.close();
+    }
+}
+
+
+
+
+
+
+
+8
+
+PeerServer
+
+import java.io.*; 
+import java.net.*;
+
+public class PeerServer {
+    public static void main(String[] args) throws Exception {
+        ServerSocket ss = new ServerSocket(6000);
+        Socket s = ss.accept();
+
+        DataInputStream in = new DataInputStream(s.getInputStream());
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
+
+        out.writeInt(in.readInt() + in.readInt());
+
+        BufferedReader br = new BufferedReader(new FileReader("shared.txt"));
+        String line;
+        while((line = br.readLine()) != null) out.writeUTF(line);
+        out.writeUTF("EOF");
+
+        s.close(); ss.close();
+    }
+}
+
+
+
+PeerClient
+
+import java.io.*; 
+import java.net.*; 
+import java.util.*;
+
+public class PeerClient {
+    public static void main(String[] args) throws Exception {
+        Socket s = new Socket("localhost",6000);
+        Scanner sc = new Scanner(System.in);
+
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
+        DataInputStream in = new DataInputStream(s.getInputStream());
+
+        System.out.print("Enter two numbers: ");
+        out.writeInt(sc.nextInt());
+        out.writeInt(sc.nextInt());
+
+        System.out.println("Sum: " + in.readInt());
+        System.out.println("File Contents:");
+        String msg;
+        while(!(msg = in.readUTF()).equals("EOF")) System.out.println(msg);
+
+        s.close();
+    }
+}
+
+
+shared.txt to be made
+
+
+🔹 Program 5 – RSA Encryption
+1. What is RSA?
+RSA is an asymmetric encryption algorithm that uses a public key for encryption and a private key for decryption.
+2. Why is BigInteger used in RSA?
+RSA uses very large numbers which cannot be stored in primitive data types.
+3. What is the role of prime numbers in RSA?
+Two large prime numbers are used to generate the public and private keys.
+4. What is n in RSA?
+n is the modulus obtained by multiplying two primes and is part of both keys.
+5. What is Euler’s Totient Function?
+It is φ(n) = (p−1)(q−1), used to compute the private key.
+6. Why is 65537 commonly used as e?
+It is a standard public exponent that provides good security and efficiency.
+7. How is encryption done in RSA?
+Ciphertext = Message^e mod n.
+8. How is decryption done in RSA?
+Message = Ciphertext^d mod n.
+9. What happens if the primes are small?
+RSA becomes insecure and can be easily broken.
+10. Where is RSA used in real life?
+HTTPS, digital signatures, secure email, and key exchange.
+
+🔹 Program 6 – Leaky Bucket Algorithm
+1. What is the Leaky Bucket algorithm?
+It is a congestion control algorithm that regulates packet flow at a fixed rate.
+2. Why is Leaky Bucket used?
+To prevent network congestion and buffer overflow.
+3. What does bucket capacity represent?
+Maximum number of packets that can be stored.
+4. What happens when the bucket overflows?
+Incoming packets are dropped.
+5. What is leak rate?
+Number of packets sent per unit time.
+6. Is Leaky Bucket used for traffic shaping or policing?
+Traffic shaping.
+7. What is packet drop?
+Discarding packets when buffer is full.
+8. What are the advantages of Leaky Bucket?
+Smooth traffic, reduced congestion, fixed output rate.
+
+🔹 Program 7 – RPC (Remote Procedure Call)
+1. What is RPC?
+A mechanism where a client executes a procedure on a remote server.
+2. What protocol is used in your RPC program?
+TCP using sockets.
+3. What is accept()?
+A blocking call that waits for a client connection.
+4. Why are DataInputStream and DataOutputStream used?
+To transmit primitive data types safely.
+5. Who initiates communication in RPC?
+The client.
+6. What happens if server is not running?
+Client gets “Connection refused”.
+7. What operations does the server support?
+Addition, subtraction, multiplication, division.
+8. Why is division by zero handled?
+To prevent runtime errors.
+
+🔹 Program 8 – Peer-to-Peer Application
+1. What is Peer-to-Peer communication?
+Peers communicate directly without a central server.
+2. How is this program peer-to-peer?
+Each peer can act as both client and server.
+3. Why is EOF used?
+To indicate end of file transmission.
+4. What happens if EOF is not sent?
+Client waits indefinitely.
+5. What type of socket is used?
+TCP socket.
+6. What happens if shared.txt is missing?
+Server throws FileNotFoundException.
+7. What is the role of BufferedReader?
+To read file contents line by line.
+
+🔹 GENERAL NETWORKING QUESTIONS
+1. What is a port?
+A logical communication endpoint.
+2. What is a socket?
+Combination of IP address and port number.
+3. Difference between TCP and UDP?
+TCP is reliable; UDP is faster but unreliable.
+4. What is a blocking call?
+A call that waits until an event occurs.
