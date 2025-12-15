@@ -1,0 +1,45 @@
+4. Simulate a TCP communica2on session in a closed internal network
+using Netcat. Use one machine (Kali) as a TCP client and another
+machine (Ubuntu) as a TCP server. Capture the TCP traﬃc with
+Wireshark to observe the TCP three-way handshake, data exchange,
+and connec2on termina2on.
+Step 1: Check IP addresses of kali Linux and Ubuntu VM using ifconfig
+command and then check each vm is reachable using ping <ip addr>
+command.
+Step 2:
+• Open Wireshark in kali linux
+• Select the internal network interface (e.g., eth0 or
+ens33).
+• Apply filter:
+tcp.port==5000
+Step3 : Start a tcp server on Ubuntu.
+Before using the below command for netcat.. apply the rules using
+ufw to allow port no 5000
+sudo su
+ufw allow 5000
+nc -lvp 5000
+# this command waits for tcp connec2on
+Step 4: Connect from kali (TCP Client)
+nc -v <Ubntu IP> 5000
+Connec2on successful..
+Step 5: Type below messages
+In Kali terminal:
+hello ubuntu
+In Ubuntu terminal:
+hello kali
+Step 6: Observe Wireshark in Kali linux
+1. TCP 3-Way Handshake
+SYN → from Kali to Ubuntu
+SYN/ACK → Ubuntu replies
+ACK → Kali acknowledges
+2. TCP Data Packets
+Packets marked as:
+[TCP segment data]
+with your messages inside.
+3. TCP Connec2on Termina2on
+When you close both nc sessions, you will see:
+FIN
+ACK
+FIN/ACK
+ACK
+Step 7: Close the connec2on in both terminal using <CTRl-C>
