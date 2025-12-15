@@ -1,16 +1,3 @@
-Part B: Prg2
-Use a packet cra0ing tool such as Scapy (Python) to create custom
-TCP, UDP, or ICMP packets. Send these packets to a target system
-and observe how a firewall responds. Use Wireshark to capture and
-analyze the traﬃc, including flags, headers, and dropped packets.
-i) Kali Linux-> Ubuntu(Target-ubuntu vm is used to set up
-UFW firewall seRngs)
-Note: UFW stands for Uncomplicated Firewall.It is the default firewall management tool
-used in Ubuntu and other Debian-based Linux systems.
-Kali Linux VM
-(Scapy Script+ Wireshark)
-Ubuntu(UFW Firewall/
-Target)
 Step 1: Network Setup:
 Check the IP address of source VM Kali Linux and Target VM Ubuntu by using
 ifconfig command in terminal.
@@ -24,68 +11,18 @@ For icmp packets to block we can add following block rules:
 sudo iptables -I INPUT 1 -p icmp --icmp-type echo-request -j DROP
 Step 4: Scapy Script in Kali Linux
 vi packet_lab.py
-#!/usr/bin/env python3
-from scapy.all import *
-import ^me
-TARGET_IP = "192.168.56.103" DEST_PORT = 80
-DEST_PORT2 = 22
-UDP_PORT = 53
-# Ubuntu VM
-PACKET_DELAY = 1
-def banner():
-print("\n========================================")
-print(" SCAPY PACKET-CRAFTING LAB SCRIPT")
-print("========================================\n")
-def send_icmp():
-print("[*] Sending ICMP Echo Request...")
-packet = IP(dst=TARGET_IP) / ICMP()
-send(packet, verbose=0)
-print("[+] ICMP packet sent.\n")
-def send_tcp_syn(des^na^on_port):
-print(f"[*] Sending TCP SYN to port {des^na^on_port}...")
-packet = IP(dst=TARGET_IP) / TCP(dport=des^na^on_port, flags="S")
-send(packet, verbose=0)
-print("[+] TCP SYN sent.\n")
-def send_tcp_null(des^na^on_port):
-print("[*] Sending TCP NULL packet...")
-packet = IP(dst=TARGET_IP) / TCP(dport=des^na^on_port, flags=0)
-send(packet, verbose=0)
-print("[+] NULL packet sent.\n")
-def send_tcp_fin(des^na^on_port):
-print("[*] Sending TCP FIN packet...")
-packet = IP(dst=TARGET_IP) / TCP(dport=des^na^on_port, flags="F")
-send(packet, verbose=0)
-print("[+] FIN sent.\n")
-def send_udp():
-print(f"[*] Sending UDP to port {UDP_PORT}...")
-packet = IP(dst=TARGET_IP) / UDP(dport=UDP_PORT) / Raw(load="TestUDP")
-send(packet, verbose=0)
-print("[+] UDP sent.\n")
-def send_custom_payload():
-print("[*] Sending TCP packet with custom payload...")
-packet = IP(dst=TARGET_IP) / TCP(dport=DEST_PORT, flags="PA") /
-Raw(load="HelloFromScapy")
-send(packet, verbose=0)
-print("[+] Payload packet sent.\n")
-def main():
-banner()
-^me.sleep(1)
-# Send packets
-send_icmp()
-^me.sleep(PACKET_DELAY)
-send_tcp_syn(DEST_PORT2)
-^me.sleep(PACKET_DELAY)
-send_tcp_null(DEST_PORT2)
-^me.sleep(PACKET_DELAY)
-send_tcp_fin(DEST_PORT2)
-^me.sleep(PACKET_DELAY)
-send_udp()
-^me.sleep(PACKET_DELAY)
-send_custom_payload()
-print("\n[+] Experiment Completed.")
-if __name__ == "__main__":
-main()
-Note: Type the python script and save it in vi editor
+import socket
+import time
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+for i in range(5):
+    msg = f"DEVICE_DISCOVERY_{i}".encode()
+    sock.sendto(msg, ("255.255.255.255", 4000))
+    print(f"[Sent] {msg}")
+    time.sleep(1)
+
 Step 5: Start Wireshark in Kali Linux
 Start wireshark and chose interface etho
 Step 6: Run the Scapy Script
@@ -103,18 +40,3 @@ In wireshark we will see
 TCP[SYN] kali -> Ubuntu
 Tcp[Syn, ACk] Ubuntu-> kali
 TCP [ACK] Kali-> Ubuntu
-2nd response
-a) ping <Ubuntu-ip>
-b) nc –v <Ubuntu-ip> 80
-c) nc –v <Ubuntu-ip> 22
-way: in kali linux type the below command and check the
-And also to check ssh connec^on is working i.e port 22 is
-working.
-Type the below command in kalilinux terminal
-ssh ubuntu@<ubuntu-ip>
-And also in Ubuntu VM check the logs by using below commands
-sudo ufw logging on
-tail –f /var/log/ufw.log
-Note:
-Once the experiment completes remove the rule in ubuntu.
-sudo iptables –D INPUT -p icmp --icmp-type echo-request -j DROP
