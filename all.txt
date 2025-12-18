@@ -1,262 +1,341 @@
-5
-
-import java.math.BigInteger;
-import java.util.*;
-
-class RSA {
-    public static void main(String[] a){
-        Random r=new Random();
-        BigInteger p=BigInteger.probablePrime(512,r),
-                   q=BigInteger.probablePrime(512,r),
-                   n=p.multiply(q),
-                   phi=p.subtract(BigInteger.ONE)
-                        .multiply(q.subtract(BigInteger.ONE)),
-                   e=BigInteger.valueOf(65537),
-                   d=e.modInverse(phi);
-
-        Scanner sc=new Scanner(System.in);
-        BigInteger msg=new BigInteger(sc.nextLine().getBytes()),
-                   enc=msg.modPow(e,n),
-                   dec=enc.modPow(d,n);
-
-        System.out.println("Encrypted: "+enc);
-        System.out.println("Decrypted: "+new String(dec.toByteArray()));
-    }
+1(a) Roots of a Quadratic Equation
+import java.util.Scanner;
+class QuadraticRoots {
+public static void main(String[] args) {
+Scanner sc = new Scanner(System.in);
+double a = sc.nextDouble(), b = sc.nextDouble(), c = sc.nextDouble();
+double d = b*b - 4*a*c;
+if (d > 0)
+System.out.println("Roots: " + ((-b+Math.sqrt(d))/(2*a)) + " , " + ((-b-
+Math.sqrt(d))/(2*a)));
+else if (d == 0)
+System.out.println("Root: " + (-b/(2*a)));
+else
+System.out.println("No real roots");
 }
-
-
-6
-
-import java.util.*;
-
-class Main {
-    public static void main(String[] a){
-        int cap=4, rate=3, rem=0;
-        Scanner sc=new Scanner(System.in);
-
-        System.out.print("Enter number of packets: ");
-        int n=sc.nextInt();
-
-        int[] pkt=new int[n];
-        System.out.println("Enter the packets:");
-        for(int i=0;i<n;i++) pkt[i]=sc.nextInt(); // read ONLY, no printing
-
-        System.out.println("Clock\tPacket\tSent\tRemaining");
-
-        for(int i=0;i<n;i++){
-            int sent;
-            if(pkt[i]<=cap-rem) rem+=pkt[i];
-            else System.out.println((i+1)+"\t"+pkt[i]+"\tDropped\t"+rem);
-
-            sent=Math.min(rem,rate);
-            rem-=sent;
-            System.out.println((i+1)+"\t"+pkt[i]+"\t"+sent+"\t"+rem);
-        }
-    }
 }
-
-
-
-
-7
-
-RPCServer
-
-import java.io.*; 
-import java.net.*;
-
-public class RPCServer {
-    public static void main(String[] args) throws Exception {
-        ServerSocket ss = new ServerSocket(5050);
-        Socket s = ss.accept();
-
-        DataInputStream in = new DataInputStream(s.getInputStream());
-        DataOutputStream out = new DataOutputStream(s.getOutputStream());
-
-        int a = in.readInt(), b = in.readInt();
-        String op = in.readUTF();
-        int res = 0;
-
-        if(op.equals("add")) res = a+b;
-        else if(op.equals("sub")) res = a-b;
-        else if(op.equals("mul")) res = a*b;
-        else if(op.equals("div")) res = (b!=0)?a/b:-1;
-
-        out.writeInt(res);
-        s.close(); ss.close();
-    }
+1(b) Multiply Two Arrays
+import java.util.Scanner;
+class ArrayMultiply {
+public static void main(String[] args) {
+Scanner sc = new Scanner(System.in);
+int n = sc.nextInt();
+int a[] = new int[n], b[] = new int[n], c[] = new int[n];
+for (int i=0;i<n;i++) a[i]=sc.nextInt();
+for (int i=0;i<n;i++) b[i]=sc.nextInt();
+for (int i=0;i<n;i++)
+c[i] = a[i] * b[i];
+for (int x : c)
+System.out.print(x + " ");
 }
-
-
-RPCClient
-
-import java.io.*; 
-import java.net.*; 
-import java.util.*;
-
-public class RPCClient {
-    public static void main(String[] args) throws Exception {
-        Socket s = new Socket("localhost",5050);
-        Scanner sc = new Scanner(System.in);
-
-        DataOutputStream out = new DataOutputStream(s.getOutputStream());
-        DataInputStream in = new DataInputStream(s.getInputStream());
-
-        System.out.print("Enter a b operation: ");
-        out.writeInt(sc.nextInt());
-        out.writeInt(sc.nextInt());
-        out.writeUTF(sc.next());
-
-        System.out.println("Result: " + in.readInt());
-        s.close();
-    }
 }
-
-
-
-
-
-
-
-8
-
-PeerServer
-
-import java.io.*; 
-import java.net.*;
-
-public class PeerServer {
-    public static void main(String[] args) throws Exception {
-        ServerSocket ss = new ServerSocket(6000);
-        Socket s = ss.accept();
-
-        DataInputStream in = new DataInputStream(s.getInputStream());
-        DataOutputStream out = new DataOutputStream(s.getOutputStream());
-
-        out.writeInt(in.readInt() + in.readInt());
-
-        BufferedReader br = new BufferedReader(new FileReader("shared.txt"));
-        String line;
-        while((line = br.readLine()) != null) out.writeUTF(line);
-        out.writeUTF("EOF");
-
-        s.close(); ss.close();
-    }
+1(c) Bubble Sort (Ascending & Descending)
+import java.util.Scanner;
+class BubbleSort {
+public static void main(String[] args) {
+Scanner sc = new Scanner(System.in);
+int n = sc.nextInt();
 }
-
-
-
-PeerClient
-
-import java.io.*; 
-import java.net.*; 
-import java.util.*;
-
-public class PeerClient {
-    public static void main(String[] args) throws Exception {
-        Socket s = new Socket("localhost",6000);
-        Scanner sc = new Scanner(System.in);
-
-        DataOutputStream out = new DataOutputStream(s.getOutputStream());
-        DataInputStream in = new DataInputStream(s.getInputStream());
-
-        System.out.print("Enter two numbers: ");
-        out.writeInt(sc.nextInt());
-        out.writeInt(sc.nextInt());
-
-        System.out.println("Sum: " + in.readInt());
-        System.out.println("File Contents:");
-        String msg;
-        while(!(msg = in.readUTF()).equals("EOF")) System.out.println(msg);
-
-        s.close();
-    }
 }
-
-
-shared.txt to be made
-
-
-🔹 Program 5 – RSA Encryption
-1. What is RSA?
-RSA is an asymmetric encryption algorithm that uses a public key for encryption and a private key for decryption.
-2. Why is BigInteger used in RSA?
-RSA uses very large numbers which cannot be stored in primitive data types.
-3. What is the role of prime numbers in RSA?
-Two large prime numbers are used to generate the public and private keys.
-4. What is n in RSA?
-n is the modulus obtained by multiplying two primes and is part of both keys.
-5. What is Euler’s Totient Function?
-It is φ(n) = (p−1)(q−1), used to compute the private key.
-6. Why is 65537 commonly used as e?
-It is a standard public exponent that provides good security and efficiency.
-7. How is encryption done in RSA?
-Ciphertext = Message^e mod n.
-8. How is decryption done in RSA?
-Message = Ciphertext^d mod n.
-9. What happens if the primes are small?
-RSA becomes insecure and can be easily broken.
-10. Where is RSA used in real life?
-HTTPS, digital signatures, secure email, and key exchange.
-
-🔹 Program 6 – Leaky Bucket Algorithm
-1. What is the Leaky Bucket algorithm?
-It is a congestion control algorithm that regulates packet flow at a fixed rate.
-2. Why is Leaky Bucket used?
-To prevent network congestion and buffer overflow.
-3. What does bucket capacity represent?
-Maximum number of packets that can be stored.
-4. What happens when the bucket overflows?
-Incoming packets are dropped.
-5. What is leak rate?
-Number of packets sent per unit time.
-6. Is Leaky Bucket used for traffic shaping or policing?
-Traffic shaping.
-7. What is packet drop?
-Discarding packets when buffer is full.
-8. What are the advantages of Leaky Bucket?
-Smooth traffic, reduced congestion, fixed output rate.
-
-🔹 Program 7 – RPC (Remote Procedure Call)
-1. What is RPC?
-A mechanism where a client executes a procedure on a remote server.
-2. What protocol is used in your RPC program?
-TCP using sockets.
-3. What is accept()?
-A blocking call that waits for a client connection.
-4. Why are DataInputStream and DataOutputStream used?
-To transmit primitive data types safely.
-5. Who initiates communication in RPC?
-The client.
-6. What happens if server is not running?
-Client gets “Connection refused”.
-7. What operations does the server support?
-Addition, subtraction, multiplication, division.
-8. Why is division by zero handled?
-To prevent runtime errors.
-
-🔹 Program 8 – Peer-to-Peer Application
-1. What is Peer-to-Peer communication?
-Peers communicate directly without a central server.
-2. How is this program peer-to-peer?
-Each peer can act as both client and server.
-3. Why is EOF used?
-To indicate end of file transmission.
-4. What happens if EOF is not sent?
-Client waits indefinitely.
-5. What type of socket is used?
-TCP socket.
-6. What happens if shared.txt is missing?
-Server throws FileNotFoundException.
-7. What is the role of BufferedReader?
-To read file contents line by line.
-
-🔹 GENERAL NETWORKING QUESTIONS
-1. What is a port?
-A logical communication endpoint.
-2. What is a socket?
-Combination of IP address and port number.
-3. Difference between TCP and UDP?
-TCP is reliable; UDP is faster but unreliable.
-4. What is a blocking call?
-A call that waits until an event occurs.
+int a[] = new int[n];
+for (int i=0;i<n;i++) a[i]=sc.nextInt();
+for (int i=0;i<n-1;i++)
+for (int j=0;j<n-i-1;j++)
+if (a[j] > a[j+1]) {
+int t=a[j]; a[j]=a[j+1]; a[j+1]=t;
+}
+System.out.println("Ascending:");
+for (int x:a) System.out.print(x+" ");
+System.out.println("\nDescending:");
+for (int i=n-1;i>=0;i--) System.out.print(a[i]+" ");
+2. Employee Database
+class Employee {
+String name, dept, desig;
+int id, age;
+double salary;
+Employee(String n,int i,String d,int a,String des,double s){
+name=n; id=i; dept=d; age=a; desig=des; salary=s;
+}
+void display(){
+System.out.println(name+" "+id+" "+dept+" "+age+" "+desig+" "+salary);
+}
+public static void main(String[] args) {
+Employee e[] = {
+new Employee("A",1,"sales",30,"manager",50000),
+new Employee("B",2,"sales",28,"staﬀ",30000),
+new Employee("C",3,"purchase",40,"manager",70000),
+new Employee("D",4,"purchase",35,"staﬀ",40000),
+new Employee("E",5,"hr",25,"staﬀ",25000)
+};
+double sum=0, max=0;
+Employee top=null;
+for(Employee x:e){
+x.display();
+if(x.dept.equals("sales")) sum+=x.salary;
+if(x.dept.equals("purchase") && x.desig.equals("manager") &&
+x.salary>max){
+max=x.salary; top=x;
+}
+}
+System.out.println("Sales Salary Sum: "+sum);
+System.out.println("Highest Paid Purchase Manager:");
+top.display();
+}
+}
+3. Complex Number (Encapsulation + Constructor)
+class Complex {
+private int r, i;
+Complex(int r, int i){
+this.r=r; this.i=i;
+}
+void add(Complex c){
+System.out.println("Add: "+(r+c.r)+"+"+(i+c.i)+"i");
+}
+void sub(Complex c){
+System.out.println("Sub: "+(r-c.r)+"+"+(i-c.i)+"i");
+}
+void compare(Complex c){
+if(r==c.r && i==c.i)
+System.out.println("Equal");
+else
+System.out.println("Not Equal");
+}
+public static void main(String[] args){
+Complex c1=new Complex(3,4);
+Complex c2=new Complex(1,2);
+c1.add(c2);
+c1.sub(c2);
+c1.compare(c2);
+}
+}
+4. Inheritance: Person
+→
+Student, Employee
+class Person {
+String name, gender;
+int age;
+Person(String n,int a,String g){
+name=n; age=a; gender=g;
+}
+void display(){
+System.out.println(name+" "+age+" "+gender);
+}
+}
+class Student extends Person {
+String course;
+Student(String n,int a,String g,String c){
+super(n,a,g); course=c;
+}
+void display(){
+super.display();
+System.out.println("Course: "+course);
+}
+}
+class Employee extends Person {
+String dept;
+Employee(String n,int a,String g,String d){
+super(n,a,g); dept=d;
+}
+void display(){
+super.display();
+System.out.println("Dept: "+dept);
+}
+}
+class Test {
+public static void main(String[] args) {
+for(int i=1;i<=5;i++)
+new Student("S"+i,20+i,"M","CSE").display();
+for(int i=1;i<=5;i++)
+new Employee("E"+i,30+i,"M","IT").display();
+}
+}
+5. Compile-Time Polymorphism (String Compare)
+class StringCompare {
+void usrstrcmp(String a,String b){
+System.out.println(a.equals(b) ? "Equal" : "Not Equal");
+}
+void usrstrcmp(String a,String b,int n){
+System.out.println(a.substring(0,n).equals(b.substring(0,n)) ? "Match" : "No
+Match");
+}
+public static void main(String[] args){
+StringCompare s=new StringCompare();
+s.usrstrcmp("hello","hello");
+s.usrstrcmp("hello","help",3);
+}
+}
+6. Abstract Class
+–
+Bank Interest
+abstract class Bank {
+String name;
+double bal;
+Bank(String n,double b){
+name=n; bal=b;
+}
+abstract void interest();
+void display(){
+System.out.println(name+" Balance:"+bal);
+}
+}
+class CityBank extends Bank {
+CityBank(String n,double b){ super(n,b); }
+void interest(){ System.out.println("Interest: "+bal*0.08); }
+}
+class SBI extends Bank {
+SBI(String n,double b){ super(n,b); }
+void interest(){ System.out.println("Interest: "+bal*0.07); }
+}
+class Canara extends Bank {
+Canara(String n,double b){ super(n,b); }
+void interest(){ System.out.println("Interest: "+bal*0.06); }
+}
+class BankTest {
+public static void main(String[] args) {
+Bank b1=new CityBank("A",10000);
+Bank b2=new SBI("B",12000);
+Bank b3=new Canara("C",15000);
+b1.interest();
+b2.interest();
+b3.interest();
+}
+}
+7. Producer–Consumer (Multithreading)
+class PC {
+int item; boolean av;
+synchronized void produce(int x) throws Exception {
+if(av) wait();
+System.out.println("Produced: "+(item=x));
+av=true; notify();
+}
+synchronized void consume() throws Exception {
+if(!av) wait();
+System.out.println("Consumed: "+item);
+av=false; notify();
+}
+public static void main(String[] a){
+PC p=new PC();
+new Thread(()->{try{for(int i=1;i<=5;i++)p.produce(i);}catch(Exception e)
+{}}).start();
+new Thread(()->{try{for(int i=1;i<=5;i++)p.consume();}catch(Exception e)
+{}}).start();
+}
+}
+8. Division with Exception Handling
+iimport java.util.*;
+class Division {
+public static void main(String[] a) {
+Scanner s = new Scanner(System.in);
+try {
+int x = s.nextInt(), y = s.nextInt();
+if (x < 0 || y < 0) throw new Exception("Negative Number Exception");
+System.out.println("Result: " + x / y);
+}
+catch (ArithmeticException e) {
+System.out.println("Divide by Zero Exception");
+}
+catch (Exception e) {
+System.out.println(e.getMessage());
+}
+}
+}
+9. Interface
+–
+interface Compute {
+void convert();
+}
+Unit Conversion
+class GBtoBytes implements Compute {
+public void convert() {
+System.out.println("1 GB = " + (1024L*1024*1024) + " Bytes");
+}
+}
+class EuroToRupee implements Compute {
+public void convert() {
+System.out.println("1 Euro = 90 Rupees");
+}
+}
+class Test {
+public static void main(String[] args) {
+Compute c1 = new GBtoBytes();
+Compute c2 = new EuroToRupee();
+c1.convert();
+c2.convert();
+}
+}
+10. JDBC CRUD Operations (MySQL)
+import java.sql.*;
+class JDBC_CRUD {
+public static void main(String[] args) throws Exception {
+Class.forName("com.mysql.cj.jdbc.Driver");
+Connection con = DriverManager.getConnection(
+"jdbc:mysql://localhost:3306/testdb","root","password");
+Statement st = con.createStatement();
+st.executeUpdate("INSERT INTO student VALUES(1,'A')");
+st.executeUpdate("UPDATE student SET name='B' WHERE id=1");
+ResultSet rs = st.executeQuery("SELECT * FROM student");
+while(rs.next())
+System.out.println(rs.getInt(1)+" "+rs.getString(2));
+st.executeUpdate("DELETE FROM student WHERE id=1");
+con.close();
+}
+}
+1. Add MySQL JDBC jar to classpath
+2. Create DB & table:
+CREATE TABLE student(id INT, name VARCHAR(20));
+11. Servlet
+–
+Age Validation
+HTML (index.html)
+<form action="Check" method="post">
+Name: <input name="name">
+Age: <input name="age">
+<input type="submit">
+</form>
+Servlet (Check.java)
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+public class Check extends HttpServlet {
+public void doPost(HttpServletRequest r, HttpServletResponse s)
+throws IOException {
+s.setContentType("text/html");
+PrintWriter out = s.getWriter();
+String name = r.getParameter("name");
+int age = Integer.parseInt(r.getParameter("age"));
+if (age < 18)
+else
+out.println("Hello " + name + ", you are not authorized to visit the site");
+out.println("Welcome to this site");
+}
+}
+12. JSP
+–
+Session, Time & Logout
+index.jsp
+<form action="welcome.jsp">
+Name: <input name="name">
+<input type="submit">
+</form>
+welcome.jsp
+<%
+String name = request.getParameter("name");
+session.setAttribute("name", name);
+session.setAttribute("time", System.currentTimeMillis());
+%>
+Hello <%=name%>
+<div style="float:right"><%= new java.util.Date() %></div>
+<form action="logout.jsp">
+<input type="submit" value="Logout">
+</form>
+logout.jsp
+<%
+String name = (String)session.getAttribute("name");
+long start = (Long)session.getAttribute("time");
+long duration = (System.currentTimeMillis()-start)/1000;
+%>
+Thank You <%=name%><br>
+Duration: <%=duration%> seconds
+<%
+session.invalidate();
+%>
